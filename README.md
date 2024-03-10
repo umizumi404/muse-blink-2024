@@ -1,70 +1,64 @@
-# Getting Started with Create React App
+# Muse Blink React Implementation
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Overview
 
-## Available Scripts
+This React application interfaces with the Muse EEG Headset to detect blinks in real-time, inspired by Uri Shaked's exploration with the Muse device. Using the [`muse-js` library](https://github.com/urish/muse-js), it demonstrates how to connect to the Muse EEG Headset, stream EEG data, and recognize user blinks. This project is a practical exploration of EEG data manipulation and real-time interaction in web development.
 
-In the project directory, you can run:
+### Features
 
-### `npm start`
+- Bluetooth connection to the Muse EEG Headset.
+- Real-time EEG data streaming.
+- Detection of left, right, and simultaneous eye blinks.
+- Customizable blink detection sensitivity through threshold and debounce adjustments.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Quick Start
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+1. Clone the repository.
+2. Install dependencies with `npm install`.
+3. Start the application using `npm start`.
+4. Experiment with threshold and debounce values in `BlinkDetectionService` for better blink detection accuracy.
 
-### `npm test`
+### Key Code Snippets
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+**Connecting to the Muse EEG Headset:**
+```javascript
+// museService.js snippet
+await museService.connect();
+if (museService.isConnected) { ... }
+```
 
-### `npm run build`
+### Blink Detection Setup
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```javascript
+// BlinkDetection.js snippet
+this.leftEyeChannel = channelNames.indexOf('AF7');
+this.rightEyeChannel = channelNames.indexOf('AF8');
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Experimenting with Detection Sensitivity
+```javascript
+// Adjusting threshold and debounceTime for improved accuracy
+this.threshold = 500; // Sensitivity adjustment
+debounceTime(400); // Debounce adjustment
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Experimentation and Adjustments
 
-### `npm run eject`
+Users are encouraged to adjust the threshold and debounce time within `BlinkDetectionService.js` to fine-tune blink detection accuracy. These parameters may need to be tailored based on individual differences and the specific use case.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Issues and Development
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+The current implementation is set up to differentiate between right and left eye blinks; however, the accuracy in doing so is not perfect. As of now, you can work with it as a single input—if a blink is registered, whether it's from the left or right eye, or however you see fit. If you find a solution to accurately isolate left and right eye blinks, I would love to see your implementation.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Credits
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+This project is a React adaptation of Uri Shaked's [muse-blink project](https://github.com/urish/muse-blink), inspired by his article on [Reactive Brain Waves](https://urish.medium.com/reactive-brain-waves-af07864bb7d4). Special thanks to Uri Shaked for the inspiration and to the developers of [muse-js](https://github.com/urish/muse-js) for their invaluable tool for Muse EEG data interaction.
 
-## Learn More
+## Visualization Branch
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+The repository includes a branch where jumps are visualized with a "Flappy Bird" character animation, triggered by user blinks. This playful addition demonstrates the potential for interactive applications using EEG data.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Note
 
-### Code Splitting
+This project is intended for educational purposes and exploration of EEG data in web applications. It provides a foundation for further development and research into brain-computer interfaces.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
