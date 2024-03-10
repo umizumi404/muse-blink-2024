@@ -4,51 +4,41 @@ import { BlinkDetectionService } from './BlinkDetection';
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
-  const [blinkMessage, setBlinkMessage] = useState('');
+  const [museService, setMuseService] = useState(null);
 
   useEffect(() => {
-    // Define a cleanup function to disconnect from the Muse headset when the component unmounts
-    let museService = new MuseService();
-    return () => {
-      if (museService.isConnected) {
-        museService.disconnect();
-      }
-    };
+    // Instantiate the MuseService
+    const newMuseService = new MuseService();
+    setMuseService(newMuseService);
   }, []);
 
-  const handleConnectClick = async () => {
-    const museService = new MuseService();
-    await museService.connect();
-
-    if (museService.isConnected) {
-      setIsConnected(true); // Update state to reflect the connection status
-      const eegObservable = museService.getEEGObservable();
-      const blinkDetectionService = new BlinkDetectionService(eegObservable, handleBlinks);
-      blinkDetectionService.startBlinkDetection();
-      console.log('Blink detection initiated.');
-    } else {
-      console.error('Failed to connect to Muse EEG headset.');
-    }
+  const handleLeftBlink = () => {
+    console.log('Left eye blinked');
   };
 
-  // This function is called by the BlinkDetectionService when a blink is detected
-  const handleBlinks = (side) => {
-    const message = side === 'left' ? 'Left eye blinked' : 'Right eye blinked';
-    setBlinkMessage(message);
+  const handleRightBlink = () => {
+    console.log('Right eye blinked');
+  };
 
-    // Clear the message after some time to make it ready for the next blink
-    setTimeout(() => setBlinkMessage(''), 2000);
+  const handleConnectClick = async () => {
+    if (museService) {
+      await museService.connect();
+      setIsConnected(museService.isConnected);
+
+      if (museService.isConnected) {
+        const eegObservable = museService.getEEGObservable();
+        const blinkDetectionService = new BlinkDetectionService(eegObservable, handleLeftBlink, handleRightBlink);
+        blinkDetectionService.startBlinkDetection();
+      }
+    }
   };
 
   return (
     <div>
       <h1>Muse EEG Data App</h1>
-      {!isConnected ? (
-        <button onClick={handleConnectClick}>Connect to Muse Headset</button>
-      ) : (
-        <p>Connected to Muse EEG headset. Blink detection active.</p>
-      )}
-      {blinkMessage && <p>{blinkMessage}</p>}
+      <button onClick={handleConnectClick} disabled={isConnected}>
+        {isConnected ? 'Connected' : 'Connect to Muse Headset'}
+      </button>
     </div>
   );
 }

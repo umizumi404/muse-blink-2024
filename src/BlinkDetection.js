@@ -1,30 +1,39 @@
 import { Subject } from 'rxjs';
-import { filter, map, debounceTime } from 'rxjs/operators';
+import { filter, map, debounceTime, switchMap, tap } from 'rxjs/operators';
 import { channelNames } from 'muse-js';
 
 export class BlinkDetectionService {
-  constructor(eegObservable, handleBlink) {
+  constructor(eegObservable, handleLeftBlink, handleRightBlink) {
     this.eegObservable = eegObservable;
-    this.handleBlink = handleBlink; // Callback function to handle detected blinks
-    // Use the channelNames to find the index of AF7 and AF8
+    this.handleLeftBlink = handleLeftBlink; // Callback function for left eye blink
+    this.handleRightBlink = handleRightBlink; // Callback function for right eye blink
     this.leftEyeChannel = channelNames.indexOf('AF7');
     this.rightEyeChannel = channelNames.indexOf('AF8');
-    this.threshold = 400; // Threshold for blink detection
-    this.blinkSubject = new Subject();
+    this.threshold = 500; // Threshold for blink detection
   }
 
   detectBlinks() {
-    this.eegObservable.pipe(
-      filter(reading => reading.electrode === this.leftEyeChannel || reading.electrode === this.rightEyeChannel),
-      map(reading => ({
-        side: reading.electrode === this.leftEyeChannel ? 'left' : 'right',
-        maxAmplitude: Math.max(...reading.samples.map(Math.abs))
-      })),
-      filter(({ maxAmplitude }) => maxAmplitude > this.threshold),
-      debounceTime(200) // Prevent multiple blink signals in quick succession
-    ).subscribe(({ side }) => {
-      this.handleBlink(side);
-    });
+    // Left eye blinks
+    const leftBlinks = this.eegObservable.pipe(
+      filter(reading => reading.electrode === this.leftEyeChannel),
+      map(reading => Math.max(...reading.samples.map(Math.abs))),
+      filter(max => max > this.threshold),
+      debounceTime(400),
+      tap(() => this.handleLeftBlink())
+    );
+
+    // Right eye blinks
+    const rightBlinks = this.eegObservable.pipe(
+      filter(reading => reading.electrode === this.rightEyeChannel),
+      map(reading => Math.max(...reading.samples.map(Math.abs))),
+      filter(max => max > this.threshold),
+      debounceTime(400),
+      tap(() => this.handleRightBlink())
+    );
+
+    // Subscribe to blink observables
+    leftBlinks.subscribe();
+    rightBlinks.subscribe();
   }
 
   startBlinkDetection() {
